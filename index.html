@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess Games</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: black; /* Changed to black */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            flex-direction: column;
+            color: white; /* Changed to white for readability */
+        }
+
+        /* General Game Container Styling */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            background-color: #fff;
+        }
+
+        /* Fill the Blank Game Styles */
+        #fillTheBlankGame {
+            background-color: black;
+            box-shadow: 0 0 20px #39ff14;
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        #fillTheBlankGame h1 {
+            color: #39ff14;
+	    font-size: 35px;
+        }
+
+        .sentence {
+            font-size: 24px;
+            margin: 30px 0;
+        }
+        .blank {
+            border-bottom: 2px solid #39ff14;
+            width: 140px;
+            display: inline-block;
+            font-weight: bold;
+            color: #39ff14;
+        }
+        #answerInput {
+            font-size: 18px;
+            padding: 8px 12px;
+            width: 180px;
+            border-radius: 6px;
+            border: 2px solid #39ff14;
+            outline: none;
+            margin-top: 15px;
+            background: black;
+            color: white;
+        }
+        #answerInput:focus {
+            border-color: #00ff80;
+        }
+        #submitBtn {
+            margin-left: 12px;
+            padding: 9px 20px;
+            font-size: 18px;
+            background: #39ff14;
+            color: black;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        #submitBtn:hover {
+            background: #00ff80;
+        }
+        #choicesBox {
+            margin: 25px auto 0 auto;
+            width: 320px;
+            border: 2px solid #39ff14;
+            border-radius: 10px;
+            background: black;
+            padding: 15px 20px;
+            font-size: 20px;
+            color: #39ff14;
+            user-select: none;
+            text-align: center;
+            line-height: 1.8;
+            font-weight: 600;
+            box-shadow: 0 0 10px #39ff14;
+        }
+        #fillTheBlankMessage {
+            margin-top: 25px;
+            font-size: 20px;
+            min-height: 30px;
+            font-weight: bold;
+        }
+
+        /* Maze Game Styles */
+        #mazeGame {
+            display: none; /* Initially hidden */
+        }
+        .maze-container {
+            width: 400px;
+            height: 400px;
+            background-color: #fff;
+            border: 5px solid #2d3748;
+            position: relative;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            box-sizing: content-box;
+        }
+        .player {
+            width: 20px;
+            height: 20px;
+            background-color: #38a169;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            border-radius: 50%;
+            transition: top 0.1s linear, left 0.1s linear;
+        }
+        .wall {
+            background-color: #4a5568;
+            position: absolute;
+            border-radius: 4px;
+        }
+        .finish {
+            width: 20px;
+            height: 20px;
+            background-color: #e53e3e;
+            position: absolute;
+            top: 360px;
+            left: 360px;
+            border-radius: 50%;
+        }
+        #mazeWinMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(45, 55, 72, 0.9);
+            color: #fff;
+            padding: 40px 60px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            display: none;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        /* Final Win Message */
+        #finalWinMessage {
+            display: none; /* Initially hidden */
+            text-align: center;
+            padding: 40px;
+            background-color: #10b981;
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        #finalWinMessage h1 {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+        #finalWinMessage p {
+            font-size: 1.5rem;
+        }
+
+        /* General Buttons */
+        .btn-restart {
+            margin-top: 40px;
+            padding: 12px 35px;
+            font-size: 18px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-restart:hover {
+            background: #b02a37;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="fillTheBlankGame" class="game-container">
+        <h1>Fill the Blank</h1>
+        <div class="sentence" id="fillTheBlankSentence"></div>
+        <input type="text" id="answerInput" placeholder="Type your answer here" autocomplete="off" />
+        <button id="submitBtn">Submit</button>
+        <div id="choicesBox"></div>
+        <div id="fillTheBlankMessage"></div>
+        <!-- The restart button is now inside this container -->
+        <button id="restartAllBtn" class="btn-restart">Restart All Games</button>
+    </div>
+
+    <div id="mazeGame" class="game-container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Maze Game</h1>
+        <div class="maze-container" id="maze">
+            <div class="player" id="player"></div>
+            <div class="finish" id="finish"></div>
+        </div>
+        <div id="mazeWinMessage" class="message-box">
+            Congratulations, you have won!
+        </div>
+    </div>
+
+    <div id="finalWinMessage" class="game-container">
+        <h1>Congratulations!</h1>
+        <p>You have successfully won both games!</p>
+    </div>
+
+    <script>
+        // Game State Management
+        let game = {
+            fillTheBlankWon: false,
+            mazeWon: false
+        };
+
+        // --- Fill the Blank Game Logic ---
+        const fillTheBlankData = [
+            { sentence: "The ___ dog barked loudly.", correct: "big", options: ["big", "small", "slow"] },
+            { sentence: "She wore a ___ dress to the party.", correct: "beautiful", options: ["beautiful", "ugly", "dirty"] },
+            { sentence: "The ___ sky was full of stars.", correct: "dark", options: ["dark", "bright", "hot"] },
+            { sentence: "He drove a ___ car down the road.", correct: "fast", options: ["fast", "heavy", "noisy"] },
+            { sentence: "It was a ___ day for a picnic.", correct: "sunny", options: ["sunny", "rainy", "cold"] }
+        ];
+
+        let fillTheBlankIndex = 0;
+        const fillTheBlankSentenceDiv = document.getElementById("fillTheBlankSentence");
+        const answerInput = document.getElementById("answerInput");
+        const submitBtn = document.getElementById("submitBtn");
+        const choicesBox = document.getElementById("choicesBox");
+        const fillTheBlankMessageDiv = document.getElementById("fillTheBlankMessage");
+        const fillTheBlankContainer = document.getElementById("fillTheBlankGame");
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+        }
+
+        function loadFillTheBlankSentence() {
+            fillTheBlankMessageDiv.textContent = "";
+            answerInput.value = "";
+            answerInput.disabled = false;
+            submitBtn.disabled = false;
+            answerInput.style.display = "inline-block";
+            submitBtn.style.display = "inline-block";
+            answerInput.focus();
+
+            const current = fillTheBlankData[fillTheBlankIndex];
+            fillTheBlankSentenceDiv.innerHTML = current.sentence.replace("___", '<span class="blank">___</span>');
+
+            const opts = [...current.options];
+            shuffleArray(opts);
+            choicesBox.textContent = opts.join(", ");
+        }
+
+        function checkFillTheBlankAnswer() {
+            const current = fillTheBlankData[fillTheBlankIndex];
+            const answer = answerInput.value.trim().toLowerCase();
+
+            if (answer === "") {
+                fillTheBlankMessageDiv.style.color = "#dc3545";
+                fillTheBlankMessageDiv.textContent = "Please type an answer.";
+                return;
+            }
+
+            if (answer === current.correct.toLowerCase()) {
+                fillTheBlankMessageDiv.style.color = "#39ff14";
+                fillTheBlankMessageDiv.textContent = "Correct! 🎉";
+                const blankSpan = fillTheBlankSentenceDiv.querySelector(".blank");
+                blankSpan.textContent = current.correct;
+                blankSpan.style.color = "#39ff14";
+
+                answerInput.disabled = true;
+                submitBtn.disabled = true;
+
+                setTimeout(() => {
+                    fillTheBlankIndex++;
+                    if (fillTheBlankIndex >= fillTheBlankData.length) {
+                        game.fillTheBlankWon = true;
+                        startNextGame();
+                    } else {
+                        loadFillTheBlankSentence();
+                    }
+                }, 1500);
+            } else {
+                fillTheBlankMessageDiv.style.color = "#dc3545";
+                fillTheBlankMessageDiv.textContent = "Incorrect, try again.";
+                answerInput.select();
+            }
+        }
+
+        submitBtn.addEventListener("click", checkFillTheBlankAnswer);
+        answerInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                checkFillTheBlankAnswer();
+            }
+        });
+
+        // --- Maze Game Logic ---
+        const player = document.getElementById('player');
+        const maze = document.getElementById('maze');
+        const mazeWinMessage = document.getElementById('mazeWinMessage');
+        const mazeContainer = document.getElementById("mazeGame");
+
+        const mazeSize = 400;
+        const playerSize = 20;
+        const step = 20;
+
+        let playerX = 20;
+        let playerY = 20;
+
+        const walls = [
+            { x: 40, y: 0, width: 20, height: 100 },
+            { x: 120, y: 60, width: 20, height: 120 },
+            { x: 200, y: 0, width: 20, height: 160 },
+            { x: 280, y: 120, width: 20, height: 160 },
+            { x: 40, y: 160, width: 100, height: 20 },
+            { x: 120, y: 220, width: 160, height: 20 },
+            { x: 200, y: 280, width: 160, height: 20 },
+            { x: 20, y: 300, width: 100, height: 20 },
+            { x: 360, y: 40, width: 20, height: 120 },
+            { x: 360, y: 200, width: 20, height: 120 },
+        ];
+
+        function generateWalls() {
+            // Remove existing walls before generating new ones on a restart
+            const existingWalls = maze.querySelectorAll('.wall');
+            existingWalls.forEach(wall => wall.remove());
+
+            walls.forEach(wall => {
+                const wallElement = document.createElement('div');
+                wallElement.classList.add('wall');
+                wallElement.style.left = `${wall.x}px`;
+                wallElement.style.top = `${wall.y}px`;
+                wallElement.style.width = `${wall.width}px`;
+                wallElement.style.height = `${wall.height}px`;
+                maze.appendChild(wallElement);
+            });
+        }
+
+        function checkCollision(newX, newY) {
+            if (newX < 0 || newX + playerSize > mazeSize || newY < 0 || newY + playerSize > mazeSize) {
+                return true;
+            }
+
+            for (const wall of walls) {
+                if (
+                    newX < wall.x + wall.width &&
+                    newX + playerSize > wall.x &&
+                    newY < wall.y + wall.height &&
+                    newY + playerSize > wall.y
+                ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function movePlayer(dx, dy) {
+            const newX = playerX + dx;
+            const newY = playerY + dy;
+
+            if (!checkCollision(newX, newY)) {
+                playerX = newX;
+                playerY = newY;
+                player.style.left = `${playerX}px`;
+                player.style.top = `${playerY}px`;
+                checkMazeWin();
+            }
+        }
+
+        function checkMazeWin() {
+            if (playerX >= 360 && playerY >= 360) {
+                mazeWon();
+            }
+        }
+
+        function mazeWon() {
+            game.mazeWon = true;
+            startNextGame();
+        }
+
+        // --- Overall Game Flow Control ---
+        const finalWinMessageContainer = document.getElementById("finalWinMessage");
+        const restartAllBtn = document.getElementById("restartAllBtn");
+
+        function startNextGame() {
+            if (game.fillTheBlankWon && game.mazeWon) {
+                fillTheBlankContainer.style.display = 'none';
+                mazeContainer.style.display = 'none';
+                finalWinMessageContainer.style.display = 'block';
+            } else if (game.fillTheBlankWon) {
+                fillTheBlankContainer.style.display = 'none';
+                mazeContainer.style.display = 'flex';
+                initializeMazeGame();
+            } else {
+                fillTheBlankContainer.style.display = 'flex';
+                mazeContainer.style.display = 'none';
+                finalWinMessageContainer.style.display = 'none';
+                loadFillTheBlankSentence();
+            }
+        }
+
+        function initializeMazeGame() {
+            // Setup maze game and player
+            playerX = 20;
+            playerY = 20;
+            player.style.left = `${playerX}px`;
+            player.style.top = `${playerY}px`;
+            player.style.display = 'block';
+            mazeWinMessage.style.display = 'none';
+            generateWalls();
+        }
+
+        function restartAllGames() {
+            game.fillTheBlankWon = false;
+            game.mazeWon = false;
+            fillTheBlankIndex = 0;
+            startNextGame();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (game.fillTheBlankWon && !game.mazeWon) {
+                switch (e.key) {
+                    case 'ArrowUp':
+                        movePlayer(0, -step);
+                        break;
+                    case 'ArrowDown':
+                        movePlayer(0, step);
+                        break;
+                    case 'ArrowLeft':
+                        movePlayer(-step, 0);
+                        break;
+                    case 'ArrowRight':
+                        movePlayer(step, 0);
+                        break;
+                }
+            }
+        });
+
+        restartAllBtn.addEventListener('click', restartAllGames);
+
+        // Initial launch
+        window.onload = function() {
+            startNextGame();
+        };
+    </script>
+</body>
+</html>
